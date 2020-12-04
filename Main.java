@@ -8,6 +8,7 @@ public class Main {
         resetIntArray(matrix);
         try {
             readSaveFile("autosave",matrix);
+            System.out.println("读取了上次的自动存档");
         } catch (FileNotFoundException e) {
             System.out.println("暂无自动存档");
         }
@@ -27,6 +28,7 @@ public class Main {
                 try {
                     readSaveFile(filename, matrix);
                     autoSave(matrix);
+                    System.out.println("读取了存档"+filename);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     System.out.println("读取存档出错");
@@ -36,6 +38,7 @@ public class Main {
                 String filename = input.next();
                 try {
                     writeInSaveFile(filename, matrix);
+                    System.out.println("写入了存档"+filename);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     System.out.println("写入存档出错");
@@ -189,7 +192,11 @@ public class Main {
     }
 
     static void writeInSaveFile(String filename, int[][] data) throws FileNotFoundException {
-        File file = new File("./saves/" + filename + ".txt");
+        File path = new File("saves");
+        if (!path.exists()){
+            path.mkdirs();
+        }//如果没有saves文件夹，就新建一个
+        File file = new File("saves/" + filename + ".txt");
         try (PrintWriter output = new PrintWriter(file)) {
             for (int row = 0; row < 9; row++) {
                 for (int column = 0; column < 9; column++) {
@@ -205,7 +212,7 @@ public class Main {
     }
 
     static void readSaveFile(String filename, int[][] outputData) throws FileNotFoundException {
-        File file = new File("./saves/" + filename + ".txt");
+        File file = new File("saves/" + filename + ".txt");
         try (Scanner fileInput = new Scanner(file)) {
             for (int row = 0; row < 9; row++) {
                 for (int column = 0; column < 9; column++) {
