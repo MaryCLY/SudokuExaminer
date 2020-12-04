@@ -1,18 +1,48 @@
+import java.util.Scanner;
+import java.io.*;
+
 public class Main {
-    public static void main(String[] args) {
-        java.util.Scanner input = new java.util.Scanner(System.in);
+    public static void main(String[] args) throws FileNotFoundException {
+        Scanner input = new Scanner(System.in);
         int[][] matrix = new int[9][9];//存放数独数据的数组
         resetIntArray(matrix);
+        try {
+            readSaveFile("autosave",matrix);
+        } catch (FileNotFoundException e) {
+            System.out.println("暂无自动存档");
+        }
         while (true) {
             System.out.println("请输入数字开启模式：1.按顺序录入数组；2.进入编辑模式；");
-            System.out.println("3.显示并检验数独正确性；4.重置九宫格（清零）；5.结束程序。");
+            System.out.println("3.显示并检验数独正确性；4.重置九宫格（清零）；5.写入存档；");
+            System.out.println("6.读取存档；7.结束程序");
             int mode = input.nextInt();
-            if (mode == 5) {
+            if (mode == 7) {
+                autoSave(matrix);
                 System.out.println("你的数独九宫格如下：");
                 displayMatrix(matrix);
-                break;
+                System.exit(1);
+            } else if (mode==6){
+                System.out.println("输入存档名：");
+                String filename = input.next();
+                try {
+                    readSaveFile(filename, matrix);
+                    autoSave(matrix);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    System.out.println("读取存档出错");
+                }
+            } else if (mode == 5) {
+                System.out.println("输入存档名：");
+                String filename = input.next();
+                try {
+                    writeInSaveFile(filename, matrix);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    System.out.println("写入存档出错");
+                }
             } else if (mode == 4) {
                 resetIntArray(matrix);
+                autoSave(matrix);
                 System.out.println("九宫格已重置！");
                 displayMatrix(matrix);
             } else if (mode == 3) {
@@ -26,6 +56,7 @@ public class Main {
                 while (true) {
                     int editOrder = input.nextInt();
                     if (editOrder == 0) {
+                        autoSave(matrix);
                         System.out.println("退出编辑模式。");
                         break;
                     } else if (editOrder < 110 || editOrder > 999 || editOrder % 100 < 10) {
@@ -58,6 +89,7 @@ public class Main {
                         }
                     }
                 }
+                autoSave(matrix);
                 System.out.println("录入结束");
             } else {
                 System.out.println("检测到了错误的输入，什么也没发生。");
@@ -67,7 +99,7 @@ public class Main {
     //函数声明
 
     static void resetIntArray(int[] array) {
-        java.util.Arrays.fill(array,0);
+        java.util.Arrays.fill(array, 0);
     }
 
     static void resetIntArray(int[][] array) {
@@ -154,6 +186,39 @@ public class Main {
                 }
             }//报错
         }
+    }
+
+    static void writeInSaveFile(String filename, int[][] data) throws FileNotFoundException {
+        File file = new File("./saves/" + filename + ".txt");
+        try (PrintWriter output = new PrintWriter(file)) {
+            for (int row = 0; row < 9; row++) {
+                for (int column = 0; column < 9; column++) {
+                    output.print(data[row][column]);
+                    if (column != 8) {
+                        output.print(" ");
+                    } else {
+                        output.print("\n");
+                    }
+                }
+            }
+        }
+    }
+
+    static void readSaveFile(String filename, int[][] outputData) throws FileNotFoundException {
+        File file = new File("./saves/" + filename + ".txt");
+        try (Scanner fileInput = new Scanner(file)) {
+            for (int row = 0; row < 9; row++) {
+                for (int column = 0; column < 9; column++) {
+                    if (fileInput.hasNext()) {
+                        outputData[row][column] = fileInput.nextInt();
+                    }
+                }
+            }
+        }
+    }
+
+    static void autoSave(int[][] data) throws FileNotFoundException {
+        writeInSaveFile("autosave",data);
     }
 }
 
